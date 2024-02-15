@@ -5,7 +5,7 @@ class CarParts():
         self.list_of_cars = []
         self.car_parts = {}
         self.sold_cars = []
-        self.sold_car_parts = {}
+        self.sold_car_parts_list = {}
         self.group_list = ["axles", "body", "computers", "drivetrain", "engine", "interior", "other"]
         self.basic_info = "basic information"
         self._removed_cars = []
@@ -25,7 +25,7 @@ class CarParts():
         next_two_letters = str(body_group[:2])
         return first_code_section + next_two_letters + str(random.randint(100000000,999999999))
     
-    def _remove_car_licence_plate_change(self, licence_plate_of_the_car):
+    def _last_car_plate(self, licence_plate_of_the_car):
         last_car_value = ["", "", 0]
         last_car = [""]
         for car in self._removed_car_parts:
@@ -37,6 +37,19 @@ class CarParts():
                 last_car_value = car
                 last_car = last_car_value
         return last_car_value
+    
+    def _remove_car_licence_plate_change(self, licence_plate_of_the_car):
+        change_action = ""
+        last_car_plate = []
+        for car in self._removed_car_parts:
+            info_to_add = ""
+            if car == licence_plate_of_the_car:
+                last_car_plate = self._last_car_plate(licence_plate_of_the_car)
+                info_to_add = self._removed_car_parts[car]
+                change_action = "R"
+        if change_action == "R":
+            self._removed_car_parts[licence_plate_of_the_car + "-lock-" + str((int(last_car_plate[2])+1))] = info_to_add
+            self._removed_car_parts.pop(licence_plate_of_the_car)
     
     def _eliminate_car(self, licence_plate_of_the_car, group_of_parts_to_remove, name_of_part, part_information):
         if group_of_parts_to_remove in self._removed_car_parts[licence_plate_of_the_car]:
@@ -104,7 +117,7 @@ class CarParts():
                 """
                 This functions is made for situations, where you enter bad information about the part, the part does not exist or that the part need to be removed because of other reasons.
                 'licence_plate_of_the_car' - licence plate of the car from which you need the part to be removed
-                'part_code' - special code that you can find in 'car_parts' or 'sold_car_parts'. It consist: licence_plate + first_two_letters_of_part_group + 9_digits_generated_code
+                'part_code' - special code that you can find in 'car_parts' or 'sold_car_parts_list'. It consist: licence_plate + first_two_letters_of_part_group + 9_digits_generated_code
                 """
                 )
         elif function_of_witch_you_need_help == "check_car_info":
@@ -119,6 +132,12 @@ class CarParts():
                 'licence_plate_of_the_car' - string, enter licence plate of the car from 'list_of_cars'
                 'year_of_sales' - number, enter year in which you are interested to get earnings.
                 """)
+        elif function_of_witch_you_need_help == "print_information":
+            print("""
+                'licence_plate_of_the_car' = real licence plate of the car from 'list_of_cars'\n
+                'mode' - 'car_parts' / 'sold_car_parts_list' / "all" \n 'car_parts' searches available parts in 'self.car_parts' OR
+                'sold_car_parts_list' searches parts in 'self.sold_car_parts_list' OR 'all' will print all the available information
+                """)
         elif function_of_witch_you_need_help == "repair_info":
             print(
                 """
@@ -129,8 +148,16 @@ class CarParts():
                 'part_code' - special code that helps to find the correct part for the change of information
                 """
                 )
+        elif function_of_witch_you_need_help == "hidden":
+            print(f"""
+                There are some hidden features that you can use:
+                {self._delete_car.__name__} - will entirely remove car from the program.
+                {self.print_information.__name__} - you can enter mode == "everything" and it will pring all the info including removed cars and parts.
+                _removed_cars - list of removed cars
+                _removed_cars_parts - stores information about all removed car parts. The program adds "lock-number" in order not to overwrite repeatable removals.
+                """)
         else:
-            print(f"You can enter following values: {self.add_car.__name__}, {self.sold_car.__name__}, {self.remove_car.__name__}, {self.add_car_part.__name__}, {self.sold_car_part.__name__}, {self.remove_car_part.__name__}, {self.check_car_info.__name__}, {self.check_price.__name__}, {self.repair_info.__name__}")
+            print(f"You can enter following values in quotation marks: {self.add_car.__name__}, {self.sold_car.__name__}, {self.remove_car.__name__}, {self.add_car_part.__name__}, {self.sold_car_part.__name__}, {self.remove_car_part.__name__}, {self.check_car_info.__name__}, {self.check_price.__name__}, {self.print_information.__name__}, {self.repair_info.__name__}")
 
     def add_car(self, licence_plate_of_the_car, car_manufacturer, model, body_code, VIN, year_of_production, mileage, color, interior_color, body_style, date_of_a_buy, total_price, price_currency):
         """
@@ -179,7 +206,7 @@ class CarParts():
             if type(date_of_a_buy) == list and len(date_of_a_buy) == 3 and len(str(date_of_a_buy[-1])) == 4:
                 self.list_of_cars.append(str(licence_plate_of_the_car))
                 self.car_parts.update({licence_plate_of_the_car:{self.basic_info:[str(car_manufacturer), str(model), str(body_code), str(VIN), str(year_of_production), str(mileage), str(color), str(interior_color), str(body_style), date_of_a_buy, str(total_price), str(price_currency)]}})
-                self.sold_car_parts.update({licence_plate_of_the_car:{self.basic_info:[str(car_manufacturer), str(model), str(body_code), str(VIN), str(year_of_production), str(mileage), str(color), str(interior_color), str(body_style), date_of_a_buy, str(total_price), str(price_currency)]}})
+                self.sold_car_parts_list.update({licence_plate_of_the_car:{self.basic_info:[str(car_manufacturer), str(model), str(body_code), str(VIN), str(year_of_production), str(mileage), str(color), str(interior_color), str(body_style), date_of_a_buy, str(total_price), str(price_currency)]}})
             else:
                 return print("Somethig went wrong with the date of a buy. Make sure it has a format: [day, month, year in 4 digit].")
         else:
@@ -201,7 +228,7 @@ class CarParts():
         """
         
         remove_action = ""
-        list_of_functions = [self.car_parts, self.sold_car_parts]
+        list_of_functions = [self.car_parts, self.sold_car_parts_list]
         if len(kwargs) == 0:
             if licence_plate_of_the_car in self.list_of_cars:
                 self._removed_cars.append(licence_plate_of_the_car)
@@ -209,36 +236,25 @@ class CarParts():
             elif licence_plate_of_the_car not in self.list_of_cars:
                 print(f"Licence plate: {licence_plate_of_the_car} is not in the list of cars.")
             for function in list_of_functions:
-                for sold_car_part in function:
+                for car in function:
                     if licence_plate_of_the_car in function.keys():
-                        for sold_group_of_parts in function[sold_car_part]:
-                            if sold_group_of_parts == self.basic_info and licence_plate_of_the_car == sold_car_part and function == self.car_parts:
-                                self._removed_car_parts[licence_plate_of_the_car] = {self.basic_info : function[sold_car_part][self.basic_info]}
-                            elif sold_group_of_parts != self.basic_info and licence_plate_of_the_car == sold_car_part:
-                                for sold_name_of_part in function[sold_car_part][sold_group_of_parts]:
+                        for group_parts in function[car]:
+                            if group_parts == self.basic_info and licence_plate_of_the_car == car and function == self.car_parts:
+                                self._removed_car_parts[licence_plate_of_the_car] = {self.basic_info : function[car][self.basic_info]}
+                            elif group_parts != self.basic_info and licence_plate_of_the_car == car:
+                                for sold_name_of_part in function[car][group_parts]:
                                     if licence_plate_of_the_car in self._removed_car_parts:
-                                        if sold_group_of_parts in self._removed_car_parts[licence_plate_of_the_car]:
-                                            self._removed_car_parts[licence_plate_of_the_car][sold_group_of_parts][sold_name_of_part] = function[licence_plate_of_the_car][sold_group_of_parts][sold_name_of_part]
+                                        if group_parts in self._removed_car_parts[licence_plate_of_the_car]:
+                                            self._removed_car_parts[licence_plate_of_the_car][group_parts][sold_name_of_part] = function[licence_plate_of_the_car][group_parts][sold_name_of_part]
                                         else:
-                                            self._removed_car_parts[licence_plate_of_the_car][sold_group_of_parts] = {sold_name_of_part : function[licence_plate_of_the_car][sold_group_of_parts][sold_name_of_part]}
+                                            self._removed_car_parts[licence_plate_of_the_car][group_parts] = {sold_name_of_part : function[licence_plate_of_the_car][group_parts][sold_name_of_part]}
                                     else:
-                                        self._removed_car_parts.update({sold_group_of_parts : function[licence_plate_of_the_car][sold_group_of_parts]})
+                                        self._removed_car_parts.update({group_parts : function[licence_plate_of_the_car][group_parts]})
                             remove_action = "R"
             if remove_action == "R":
                 self.car_parts.pop(licence_plate_of_the_car)
-                self.sold_car_parts.pop(licence_plate_of_the_car)
-            change_action = ""
-            last_car_plate = []
-            for car in self._removed_car_parts:
-                info_to_add = ""
-                if car == licence_plate_of_the_car:
-                    last_car_plate = self._remove_car_licence_plate_change(licence_plate_of_the_car)
-                    info_to_add = self._removed_car_parts[car]
-                    change_action = "R"
-            if change_action == "R":
-                self._removed_car_parts[licence_plate_of_the_car + "-lock-" + str((int(last_car_plate[2])+1))] = info_to_add
-                self._removed_car_parts.pop(licence_plate_of_the_car)
-        if "mode" in kwargs.keys() and kwargs["mode"] == "new":
+                self.sold_car_parts_list.pop(licence_plate_of_the_car)
+            self._remove_car_licence_plate_change(licence_plate_of_the_car)
             for element in kwargs:
                 if "other_information" in kwargs and isinstance(kwargs[element], list):
                     for part_of_list in kwargs[element]:
@@ -251,6 +267,7 @@ class CarParts():
                             del kwargs[element][kwargs[element].index(part_of_list)][-3]
                             info_to_enter = kwargs[element][kwargs[element].index(part_of_list)][1:]
                             self._removed_car_parts.update({kwargs[element][kwargs[element].index(part_of_list)][0] : {self.basic_info : info_to_enter}})
+                            self._removed_cars.append(kwargs[element][kwargs[element].index(part_of_list)][0][:-7])
                         if len(kwargs[element][kwargs[element].index(part_of_list)]) == 11:
                             kwargs[element][kwargs[element].index(part_of_list)][-4] = kwargs[element][kwargs[element].index(part_of_list)][-4] + "," + kwargs[element][kwargs[element].index(part_of_list)][-3] + "," + kwargs[element][kwargs[element].index(part_of_list)][-2]
                             kwargs[element][kwargs[element].index(part_of_list)][-4] = kwargs[element][kwargs[element].index(part_of_list)][-4].split(",")
@@ -281,10 +298,10 @@ class CarParts():
         except:
             cars_not_found_in.append('car_parts')
         try:
-            self.sold_car_parts.pop(licence_plate_to_delete)
-            deleted_cars.append('sold_car_parts')
+            self.sold_car_parts_list.pop(licence_plate_to_delete)
+            deleted_cars.append('sold_car_parts_list')
         except:
-            cars_not_found_in.append('sold_car_parts')
+            cars_not_found_in.append('sold_car_parts_list')
         try:
             self.sold_cars.remove(licence_plate_to_delete)
             deleted_cars.append('sold_cars')
@@ -401,13 +418,13 @@ class CarParts():
         if remove_group == "R":
             group_to_remove[0].pop(group_to_remove[1])
 
-        for licence_plate in self.sold_car_parts:
+        for licence_plate in self.sold_car_parts_list:
             if type(date_of_a_sell) == list and len(date_of_a_sell) == 3 and len(str(date_of_a_sell[-1])) == 4:
                 if licence_plate == cars_licence_plate:
-                    if part_group in self.sold_car_parts[licence_plate]:
-                        self.sold_car_parts[licence_plate][part_group][name_of_part] = [ str(code_of_the_part), str(price_of_the_part), str(price_currency_of_the_part), str(damage_of_the_part), date_of_a_sell, str(other_info_of_the_part)]
+                    if part_group in self.sold_car_parts_list[licence_plate]:
+                        self.sold_car_parts_list[licence_plate][part_group][name_of_part] = [ str(code_of_the_part), str(price_of_the_part), str(price_currency_of_the_part), str(damage_of_the_part), date_of_a_sell, str(other_info_of_the_part)]
                     else:
-                        self.sold_car_parts[licence_plate][part_group] = {str(name_of_part) : [ str(code_of_the_part), str(price_of_the_part),str(price_currency_of_the_part), str(damage_of_the_part), date_of_a_sell, str(other_info_of_the_part)]}
+                        self.sold_car_parts_list[licence_plate][part_group] = {str(name_of_part) : [ str(code_of_the_part), str(price_of_the_part),str(price_currency_of_the_part), str(damage_of_the_part), date_of_a_sell, str(other_info_of_the_part)]}
             else:
                 print("Something went wrong with the sale datetime. Make sure it has a format: [day, month, year in 4 digit].")
         if action == 0:
@@ -417,46 +434,36 @@ class CarParts():
         """
         This functions is made for situations, where you enter bad information about the part, the part does not exist or that the part need to be removed because of other reasons.
         'licence_plate_of_the_car' - licence plate of the car from which you need the part to be removed
-        'part_code' - special code that you can find in 'car_parts' or 'sold_car_parts'. It consist: licence_plate + first_two_letters_of_part_group + 9_digits_generated_code
+        'part_code' - special code that you can find in 'car_parts' or 'sold_car_parts_list'. It consist: licence_plate + first_two_letters_of_part_group + 9_digits_generated_code
         """
         name_of_part_to_remove = ""
         group_of_parts_to_remove = ""
         part_information = []
         remove_part_action = ""
-        for car in self.car_parts:
-            for group_of_parts in self.car_parts[car]:
-                for name_of_part in self.car_parts[car][group_of_parts]:
-                    if group_of_parts == self.basic_info and licence_plate_of_the_car == car:
-                        self._removed_car_parts.update({licence_plate_of_the_car : { self.basic_info : self.car_parts[licence_plate_of_the_car][group_of_parts]}})
-                    elif group_of_parts != self.basic_info and licence_plate_of_the_car == car:
-                        if part_code in self.car_parts[car][group_of_parts][name_of_part]:
-                            part_information = self.car_parts[car][group_of_parts][name_of_part]
-                            group_of_parts_to_remove = group_of_parts
-                            name_of_part_to_remove = name_of_part
-                            remove_part_action = "R"
-                            self._eliminate_car(licence_plate_of_the_car, group_of_parts_to_remove, name_of_part, part_information)
-                            #if group_of_parts_to_remove in self._removed_car_parts[licence_plate_of_the_car]:
-                            #    self._removed_car_parts[licence_plate_of_the_car][group_of_parts_to_remove][name_of_part] = part_information
-                            #else:
-                            #    self._removed_car_parts[licence_plate_of_the_car][group_of_parts_to_remove] = { name_of_part_to_remove : part_information }
-        for sold_car in self.sold_car_parts:
-            for group_of_sold_parts in self.sold_car_parts[sold_car]:
-                for name_of_sold_part in self.sold_car_parts[sold_car][group_of_sold_parts]:
-                    if licence_plate_of_the_car == sold_car:
-                        if group_of_sold_parts != self.basic_info and part_code in self.sold_car_parts[sold_car][group_of_sold_parts][name_of_sold_part]:
-                            part_information = self.sold_car_parts[sold_car][group_of_sold_parts][name_of_sold_part]
-                            group_of_parts_to_remove = group_of_sold_parts
-                            name_of_part_to_remove = name_of_sold_part
-                            remove_part_action = "RS"
-                            self._eliminate_car(licence_plate_of_the_car, group_of_parts_to_remove, name_of_part_to_remove, part_information)
-                            #if group_of_parts_to_remove in self._removed_car_parts[licence_plate_of_the_car]:
-                            #    self._removed_car_parts[licence_plate_of_the_car][group_of_parts_to_remove][name_of_part_to_remove] = part_information
-                            #else:
-                            #    self._removed_car_parts[licence_plate_of_the_car][group_of_parts_to_remove] = { name_of_part_to_remove : part_information }
+        remove_function = [self.car_parts, self.sold_car_parts_list]
+        for function in remove_function:
+            for car in function:
+                for group_of_parts in function[car]:
+                    for name_of_part in function[car][group_of_parts]:
+                        if group_of_parts == self.basic_info and licence_plate_of_the_car == car and function == self.car_parts:
+                            self._removed_car_parts.update({licence_plate_of_the_car : { self.basic_info : function[licence_plate_of_the_car][group_of_parts]}})
+                        elif group_of_parts != self.basic_info and licence_plate_of_the_car == car:
+                            if part_code in function[car][group_of_parts][name_of_part]:
+                                part_information = function[car][group_of_parts][name_of_part]
+                                group_of_parts_to_remove = group_of_parts
+                                name_of_part_to_remove = name_of_part
+                                remove_part_action = "R"
+                                self._eliminate_car(licence_plate_of_the_car, group_of_parts_to_remove, name_of_part_to_remove, part_information)
+        self._remove_car_licence_plate_change(licence_plate_of_the_car)
         if remove_part_action == "R":
-            self.car_parts[licence_plate_of_the_car][group_of_parts_to_remove].pop(name_of_part_to_remove)
-        elif remove_part_action == "RS":
-            self.sold_car_parts[licence_plate_of_the_car][group_of_parts_to_remove].pop(name_of_part_to_remove)            
+            try:
+                self.car_parts[licence_plate_of_the_car][group_of_parts_to_remove].pop(name_of_part_to_remove)
+            except:
+                None
+            try:
+                self.sold_car_parts_list[licence_plate_of_the_car][group_of_parts_to_remove].pop(name_of_part_to_remove)
+            except:
+                None
 
     def check_car_info(self, body_code = None, body_style = None, color = None):
         """
@@ -464,27 +471,19 @@ class CarParts():
         'body_code' - "e60", "B5", "L322" ...
         'body_style' - SUV, sedan, wagon ...
         """
+        info_function = {body_code : 2, body_style : 8}
         check_action = 0
-        if body_code != None:
-            for car in self.car_parts:
-                for info in self.car_parts[car]:
-                    if self.basic_info == info and body_code == self.car_parts[car][info][2]:
-                        if color != None and color == self.car_parts[car][info][6]:
-                            print(self.car_parts[car])
-                            check_action += 1
-                        else:
-                            print(self.car_parts[car])
-                            check_action += 1
-        if body_style != None:
-            for car_style in self.car_parts:
-                for info_style in self.car_parts[car_style]:
-                    if self.basic_info == info_style and body_style == self.car_parts[car_style][info_style][8]:
-                        if color != None and color == self.car_parts[car_style][info_style][6]:
-                            print(self.car_parts[car_style])
-                            check_action += 1
-                        else:
-                            print(self.car_parts[car_style])
-                            check_action += 1
+        for check_function in info_function:
+            if check_function != None:
+                for car in self.car_parts:
+                    for info in self.car_parts[car]:
+                        if self.basic_info == info and check_function == self.car_parts[car][info][info_function[check_function]]:
+                            if color != None and color == self.car_parts[car][info][6]:
+                                self.print_information(car, mode = "car_parts")
+                                check_action += 1
+                            else:
+                                self.print_information(car, mode = "car_parts")
+                                check_action += 1
         if check_action == 0:
             if body_code != None:
                 print(f"A car with 'body_code' {body_code} was not found in 'car_parts' list.")
@@ -500,35 +499,35 @@ class CarParts():
         total_price = 0
         other_currency = ""
         check_price_action = 0
-        for car in self.sold_car_parts:
-            for group in self.sold_car_parts[car]:
+        for car in self.sold_car_parts_list:
+            for group in self.sold_car_parts_list[car]:
                 if licence_plate_of_the_car != None:
-                    if licence_plate_of_the_car in self.sold_car_parts.keys():
+                    if licence_plate_of_the_car in self.sold_car_parts_list.keys():
                         if licence_plate_of_the_car == car:
                             if group == self.basic_info:
-                                currency = self.sold_car_parts[car][group][-1]
-                                total_price -= int(self.sold_car_parts[car][group][-2])
+                                currency = self.sold_car_parts_list[car][group][-1]
+                                total_price -= int(self.sold_car_parts_list[car][group][-2])
                             elif group != self.basic_info:
-                                for group_key in self.sold_car_parts[car][group].keys():
-                                    if currency == self.sold_car_parts[car][group][group_key][2]:
-                                        total_price += int(self.sold_car_parts[car][group][group_key][1])
+                                for group_key in self.sold_car_parts_list[car][group].keys():
+                                    if currency == self.sold_car_parts_list[car][group][group_key][2]:
+                                        total_price += int(self.sold_car_parts_list[car][group][group_key][1])
                                     else:
                                         print("The price currencies are different for part/s or car and part/s.")
-                                        other_currency = self.sold_car_parts[car][group][group_key][2]
+                                        other_currency = self.sold_car_parts_list[car][group][group_key][2]
                                         print(f"The correct currency is {currency} and 'wrong' currency is {other_currency}.")
                             check_price_action += 1
                     else:
                         return print(f"No car with licence plate {licence_plate_of_the_car} found.")
                 elif year_of_sales != None:
-                    if year_of_sales == self.sold_car_parts[car][self.basic_info][9][2]:
+                    if year_of_sales == self.sold_car_parts_list[car][self.basic_info][9][2]:
                         if group == self.basic_info:
-                            currency = self.sold_car_parts[car][group][-1]
-                            total_price -= int(self.sold_car_parts[car][group][-2])
+                            currency = self.sold_car_parts_list[car][group][-1]
+                            total_price -= int(self.sold_car_parts_list[car][group][-2])
                             check_price_action += 1
                         elif group != self.basic_info:
-                            for group_key in self.sold_car_parts[car][group].keys():
-                                if currency == self.sold_car_parts[car][group][group_key][2]:
-                                    total_price += int(self.sold_car_parts[car][group][group_key][1])
+                            for group_key in self.sold_car_parts_list[car][group].keys():
+                                if currency == self.sold_car_parts_list[car][group][group_key][2]:
+                                    total_price += int(self.sold_car_parts_list[car][group][group_key][1])
                                 else:
                                     print("Please check the price currencies. They are different between car and parts.")
                                 check_price_action += 1
@@ -536,6 +535,53 @@ class CarParts():
             return print("Please enter one of the values 'licence_plate_of_the_car' or 'year_of_sales'")
         return print(total_price)
     
+    def print_information (self, licence_plate_of_the_car, mode = None):
+        """
+        'licence_plate_of_the_car' = real licence plate of the car from 'list_of_cars'\n
+        'mode' - 'car_parts' / 'sold_car_parts_list' / "all" \n 'car_parts' searches available parts in 'self.car_parts' OR
+        'sold_car_parts_list' searches parts in 'self.sold_car_parts_list' OR 'all' will print all the available information
+        """
+        if mode == "car_parts":
+            for car in self.car_parts:
+                if car == licence_plate_of_the_car:
+                    for group in self.car_parts[car]:
+                        if group == self.basic_info:
+                            print("Available car parts:")
+                            print(car, ", ", self.basic_info, ", ", self.car_parts[car][self.basic_info])
+                        else:
+                            for part_name in self.car_parts[car][group]:
+                                print(car, ", ", group, ", ", part_name, ", ", self.car_parts[car][group][part_name])
+        elif mode == "sold_car_parts_list":
+            for car in self.sold_car_parts_list:
+                if car == licence_plate_of_the_car:
+                    for group in self.sold_car_parts_list[car]:
+                        if group == self.basic_info:
+                            print("Sold car parts:")
+                            print(car, ", ", self.basic_info, ", ", self.sold_car_parts_list[car][self.basic_info])
+                        else:
+                            for sold_part_name in self.sold_car_parts_list[car][group]:
+                                print(car, ", ", group, ", ", sold_part_name, ", ", self.sold_car_parts_list[car][group][sold_part_name])
+        elif mode == "all":
+            print("list of cars: ",self.list_of_cars)
+            for car in self.car_parts:
+                self.print_information(car, mode = "car_parts")
+            for sold_car in self.sold_car_parts_list:
+                self.print_information(sold_car, mode = "sold_car_parts_list")
+            print("list of sold cars: ",self.sold_cars)
+        elif mode == "everything":
+            self.print_information("a", mode = "all")
+            print("list of removed cars: ",self._removed_cars)
+            for removed_car in self._removed_car_parts:
+                print("Removed car parts:")
+                for removed_group in self._removed_car_parts[removed_car]:
+                    if removed_group == self.basic_info:
+                        print(removed_car, ", ", self.basic_info, self._removed_car_parts[removed_car][self.basic_info])
+                    elif removed_group != self.basic_info:
+                        print(removed_car, ", ", removed_group, ", ", self._removed_car_parts[removed_car][removed_group])
+        elif mode == None:
+            self.print_information(licence_plate_of_the_car, mode = "car_parts")
+            self.print_information(licence_plate_of_the_car, mode = "sold_car_parts_list")
+
     def repair_info(self, mode, old_value, new_value, car_part_mode = None, part_code = None):
         """
         'mode' - enter name of a function to repair, e.g. "add_car" (for 'basic information'), "sold_car_part", "remove_car_part" ...
@@ -555,7 +601,7 @@ class CarParts():
                         if group == self.basic_info:
                             if old_value in car_info and car_info == old_value:
                                 self.car_parts[car][group][self.car_parts[car][group].index(old_value)] = new_value
-                                self.sold_car_parts[car][group][self.sold_car_parts[car][group].index(old_value)] = new_value
+                                self.sold_car_parts_list[car][group][self.sold_car_parts_list[car][group].index(old_value)] = new_value
         if mode == "add_car_part":
             for car_parts in self.car_parts:
                 for part_group in self.car_parts[car_parts]:
@@ -601,27 +647,27 @@ class CarParts():
                 elif part_group_key not in self.car_parts[car_key]:
                     print("The basic information of the car was not found.")
                 if part_group_key != self.basic_info:
-                    list_of_car_parts.append(rf"{car_key}")
-                    list_of_car_parts.append(rf"{part_group_key}")
                     for part_information in self.car_parts[car_key][part_group_key]:
+                        list_of_car_parts.append(rf"{car_key}")
+                        list_of_car_parts.append(rf"{part_group_key}")
                         list_of_car_parts.append(rf"{part_information}")
                         list_of_car_parts.append(rf"{self.car_parts[car_key][part_group_key][part_information]}")
-                    list_of_car_parts.append("-@@-")
+                        list_of_car_parts.append("-@@-")
                 elif len(part_group_key) == 1:
                     print("The other groups of parts was not found.")
-        for car_key_sold in self.sold_car_parts:
-            for part_group_key_sold in self.sold_car_parts[car_key_sold]:
+        for car_key_sold in self.sold_car_parts_list:
+            for part_group_key_sold in self.sold_car_parts_list[car_key_sold]:
                 if part_group_key_sold != self.basic_info:
-                    list_of_sold_parts.append(rf"{car_key_sold}")
-                    list_of_sold_parts.append(rf"{part_group_key_sold}")
-                    for part_sold in self.sold_car_parts[car_key_sold][part_group_key_sold]:
+                    for part_sold in self.sold_car_parts_list[car_key_sold][part_group_key_sold]:
+                        list_of_sold_parts.append(rf"{car_key_sold}")
+                        list_of_sold_parts.append(rf"{part_group_key_sold}")
                         list_of_sold_parts.append(rf"{part_sold}")
                         counter_part = 0
-                        for part_information_sold in self.sold_car_parts[car_key_sold][part_group_key_sold][part_sold]:
-                            list_of_sold_parts.append(rf"{self.sold_car_parts[car_key_sold][part_group_key_sold][part_sold][counter_part]}")
+                        for part_information_sold in self.sold_car_parts_list[car_key_sold][part_group_key_sold][part_sold]:
+                            list_of_sold_parts.append(rf"{self.sold_car_parts_list[car_key_sold][part_group_key_sold][part_sold][counter_part]}")
                             counter_part += 1
                         list_of_sold_parts.append("-@@-")
-                if len(self.sold_car_parts[car_key_sold]) == 1:
+                if len(self.sold_car_parts_list[car_key_sold]) == 1:
                     print(f"{car_key_sold} has no sold parts. Impossible to move car part into sold car parts - sold_car_part()")
                 
         for removed_car in self._removed_car_parts:
@@ -635,14 +681,14 @@ class CarParts():
                     list_of_removed_cars.append("-@@-")
                 elif removed_group_key != self.basic_info:
                     for removed_part in self._removed_car_parts[removed_car][removed_group_key]:
-                        list_of_removed_cars.append(rf"{removed_car}")
-                        list_of_removed_cars.append(rf"{removed_group_key}")
-                        list_of_removed_cars.append(rf"{removed_part}")
                         counter_removed_extra = 0
                         for removed_part_information in self._removed_car_parts[removed_car][removed_group_key][removed_part]:
-                            list_of_removed_cars.append(rf"{self._removed_car_parts[removed_car][removed_group_key][removed_part][counter_removed_extra]}")
+                            list_of_removed_cars.append(rf"{removed_car}")
+                            list_of_removed_cars.append(rf"{removed_group_key}")
+                            list_of_removed_cars.append(rf"{removed_part}")
+                            list_of_removed_cars.append(rf"{self._removed_car_parts[removed_car][removed_group_key][removed_part]}")
                             counter_removed_extra += 1   
-                        list_of_removed_cars.append("-@@-")
+                            list_of_removed_cars.append("-@@-")
 
         with open(rf"{name_of_the_file}", "w") as file:
             file.write(str("List_of_cars: "))
@@ -654,7 +700,7 @@ class CarParts():
             file.write(str(list_of_cars).lstrip("[").rstrip("]").rstrip("'-@@-'") + "\n")
             file.write(str("Add_car_part: "))
             file.write(str(list_of_car_parts).lstrip("[").rstrip("]").replace('"', '').rstrip("'-@@-'") + "\n")
-            file.write(str("Sold_car_parts: "))
+            file.write(str("sold_car_parts: "))
             file.write(str(list_of_sold_parts).replace('"', '').replace('\\', "").lstrip("[").rstrip("]").rstrip("'-@@-'") + "\n")
             file.write(str("Removed_cars: "))
             file.write(str(list_of_removed_cars).replace('"', '').replace('\\', "").lstrip("[").rstrip("]").rstrip("'-@@-'"))
@@ -665,7 +711,7 @@ class CarParts():
             list_of_sold_cars = file.readline()[19:].split(",")
             list_of_basic_car_info = file.readline()[9:-3].replace("'", "").replace("[","").replace("]","").split(", -@@-, ")
             list_of_car_parts_from_load_file = file.readline()[14:-3].replace("'", "").replace("[","").replace("]","").split(", -@@-, ")
-            list_of_sold_car_parts_from_load_file = file.readline()[16:-2].replace("'", "").replace("[","").replace("]","").split(", -@@-, ")
+            list_of_sold_car_parts_list_from_load_file = file.readline()[16:-2].replace("'", "").replace("[","").replace("]","").split(", -@@-, ")
             list_of_removed_cars_from_file = file.readline()[14:-2].replace("'", "").replace("[", "").replace("]", "").split(", -@@-, ")
             for str_car_info in list_of_basic_car_info:
                 list_of_basic_car_info[list_of_basic_car_info.index(str_car_info)] = str_car_info.split(", ")
@@ -679,29 +725,26 @@ class CarParts():
                 list_of_basic_car_info[list_of_basic_car_info.index(car_info_value)] = new_info_list
             for list_of_car_part in list_of_car_parts_from_load_file:
                 list_of_car_parts_from_load_file[list_of_car_parts_from_load_file.index(list_of_car_part)] = list_of_car_part.split(", ")
-            for list_of_sold_parts in list_of_sold_car_parts_from_load_file:
-                list_of_sold_car_parts_from_load_file[list_of_sold_car_parts_from_load_file.index(list_of_sold_parts)] = list_of_sold_parts.split(", ")
-            for part_info_value in list_of_sold_car_parts_from_load_file:
+            for list_of_sold_parts in list_of_sold_car_parts_list_from_load_file:
+                list_of_sold_car_parts_list_from_load_file[list_of_sold_car_parts_list_from_load_file.index(list_of_sold_parts)] = list_of_sold_parts.split(", ")
+            for part_info_value in list_of_sold_car_parts_list_from_load_file:
                 part_info_list = part_info_value[:7]
                 part_info_list.append([int(part_info_value[7])])
                 part_info_list[-1].append(int(part_info_value[8]))
                 part_info_list[-1].append(int(part_info_value[9]))
                 part_info_list.append(part_info_value[10])
-                list_of_sold_car_parts_from_load_file[list_of_sold_car_parts_from_load_file.index(part_info_value)] = part_info_list
+                list_of_sold_car_parts_list_from_load_file[list_of_sold_car_parts_list_from_load_file.index(part_info_value)] = part_info_list
             for list_of_removed_things in list_of_removed_cars_from_file:
                 list_of_removed_cars_from_file[list_of_removed_cars_from_file.index(list_of_removed_things)] = list_of_removed_things.split(", ")
             for car in list_of_basic_car_info:
                 self.add_car(car[0],car[1],car[2],car[3],car[4],car[5],car[6],car[7],car[8],car[9],car[10],car[11],car[12])
             for part in list_of_car_parts_from_load_file:
                 self.add_car_part(licence_plate_of_the_car = part[0], group_of_parts = part[1], name_of_part = part[2], price = part[4], price_currency= part[5], damaged = part[6],other_information = part[7], part_code = part[3])
-            for part_to_sell in list_of_sold_car_parts_from_load_file:
+            for part_to_sell in list_of_sold_car_parts_list_from_load_file:
                 self.add_car_part(licence_plate_of_the_car = part_to_sell[0], group_of_parts = part_to_sell[1], name_of_part = part_to_sell[2], price = part_to_sell[4], price_currency = part_to_sell[5], damaged = part_to_sell[6], other_information = part_to_sell[8], part_code = part_to_sell[3])
-            for sold_part in list_of_sold_car_parts_from_load_file:
+            for sold_part in list_of_sold_car_parts_list_from_load_file:
                 self.sold_car_part(mode = "information", licence_plate_of_the_car = sold_part[0], price = sold_part[4], group_of_parts = sold_part[1], name_of_part = sold_part[2], date_of_a_sell = sold_part[7], part_code = sold_part[3])
             self.remove_car("A", mode = "new", other_information = list_of_removed_cars_from_file)
         file.close()
-
-
-    # create better printing funciton
 
 

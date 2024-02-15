@@ -20,7 +20,7 @@ class CarPartsTests(unittest.TestCase):
         pd_sobotka.add_car(my_car, "BMW", "520d", "e60", "bought as body parts", "2006", "183000km", "silvergrau", "black", "sedan", [12,6,2023], "60000", "CZK")
         self.assertEqual(pd_sobotka.list_of_cars, [my_car])
         self.assertEqual(pd_sobotka.car_parts, {my_car:{"basic information" : ["BMW", "520d", "e60", "bought as body parts", "2006", "183000km", "silvergrau", "black", "sedan", [12,6,2023], "60000", "CZK"]}})
-        self.assertEqual(pd_sobotka.sold_car_parts, {my_car:{"basic information" : ["BMW", "520d", "e60", "bought as body parts", "2006", "183000km", "silvergrau", "black", "sedan", [12,6,2023], "60000", "CZK"]}})
+        self.assertEqual(pd_sobotka.sold_car_parts_list, {my_car:{"basic information" : ["BMW", "520d", "e60", "bought as body parts", "2006", "183000km", "silvergrau", "black", "sedan", [12,6,2023], "60000", "CZK"]}})
 
     def test_add_car_require_enter_whole_VIN_number(self):
         captureoutput = io.StringIO()
@@ -79,8 +79,8 @@ class CarPartsTests(unittest.TestCase):
         pd_sobotka.add_car_part(licence_plate_of_the_car = my_car, group_of_parts = "body", name_of_part = "left front fender", price = "2000", price_currency = "CZK")
         pd_sobotka.sold_car_part(licence_plate_of_the_car = my_car, group_of_parts = "body",name_of_part = "left front fender", date_of_a_sell = [15,6,2023])
         self.assertEqual(pd_sobotka.car_parts, {my_car:{"basic information": ["BMW", "520d", "e60", "bought as body parts", "2006", "183000km", "silvergrau", "black", "sedan", [12,6,2023], "60000", "CZK"]}})
-        self.assertEqual(pd_sobotka.sold_car_parts, {my_car:{"basic information": ["BMW", "520d", "e60", "bought as body parts", "2006", "183000km", "silvergrau", "black", "sedan", [12,6,2023], "60000", "CZK"],
-                                             "body": {"left front fender":[my_car+"bo"+str(pd_sobotka.sold_car_parts)[-58:-49],"2000", "CZK", "No", [15,6,2023], "None"]}}})
+        self.assertEqual(pd_sobotka.sold_car_parts_list, {my_car:{"basic information": ["BMW", "520d", "e60", "bought as body parts", "2006", "183000km", "silvergrau", "black", "sedan", [12,6,2023], "60000", "CZK"],
+                                             "body": {"left front fender":[my_car+"bo"+str(pd_sobotka.sold_car_parts_list)[-58:-49],"2000", "CZK", "No", [15,6,2023], "None"]}}})
 
     def test_add_car_part_will_not_accept_part_outside_of_list(self):
         capturedoutput = io.StringIO()
@@ -262,7 +262,7 @@ class CarPartsTests(unittest.TestCase):
         pd_sobotka.add_car(my_car, "BMW", "520d", "e60", "12345678901234567", "2006", "187000", "silvergrau", "black", "sedan", [21,6,2023], "60000", "CZK")
         pd_sobotka.check_car_info(body_code = "e60")
         sys.stdout = sys.__stdout__
-        self.assertEqual(captureoutput.getvalue(), "{'basic information': ['BMW', '520d', 'e60', '12345678901234567', '2006', '187000', 'silvergrau', 'black', 'sedan', [21, 6, 2023], '60000', 'CZK']}\n")
+        self.assertEqual(captureoutput.getvalue(), f"Available car parts:\n{my_car} ,  basic information ,  ['BMW', '520d', 'e60', '12345678901234567', '2006', '187000', 'silvergrau', 'black', 'sedan', [21, 6, 2023], '60000', 'CZK']\n")
     
     def test_check_car_info_body_code_and_color(self):
         captureoutput = io.StringIO()
@@ -275,7 +275,7 @@ class CarPartsTests(unittest.TestCase):
         pd_sobotka.add_car(my_car, "BMW", "520d", "e60", "12345678901234567", "2006", "187000", "silvergrau", "black", "sedan", [21,6,2023], "60000", "CZK")
         pd_sobotka.check_car_info(body_code = "e60", color = "black")
         sys.stdout = sys.__stdout__
-        self.assertEqual(captureoutput.getvalue(), "{'basic information': ['BMW', '520d', 'e60', '12345678901234567', '2006', '187000', 'silvergrau', 'black', 'sedan', [21, 6, 2023], '60000', 'CZK']}\n")
+        self.assertEqual(captureoutput.getvalue(), f"Available car parts:\n{my_car} ,  basic information ,  ['BMW', '520d', 'e60', '12345678901234567', '2006', '187000', 'silvergrau', 'black', 'sedan', [21, 6, 2023], '60000', 'CZK']\n")
     
     def test_check_car_info_body_style(self):
         captureoutput = io.StringIO()
@@ -288,7 +288,7 @@ class CarPartsTests(unittest.TestCase):
         pd_sobotka.add_car(my_car, "BMW", "520d", "e60", "12345678901234567", "2006", "187000", "silvergrau", "black", "sedan", [21,6,2023], "60000", "CZK")
         pd_sobotka.check_car_info(body_style= "sedan")
         sys.stdout = sys.__stdout__
-        self.assertEqual(captureoutput.getvalue(), "{'basic information': ['BMW', '520d', 'e60', '12345678901234567', '2006', '187000', 'silvergrau', 'black', 'sedan', [21, 6, 2023], '60000', 'CZK']}\n")
+        self.assertEqual(captureoutput.getvalue(), f"Sold car parts:\n{my_car} ,  basic information ,  ['BMW', '520d', 'e60', '12345678901234567', '2006', '187000', 'silvergrau', 'black', 'sedan', [21, 6, 2023], '60000', 'CZK']\n")
     
     def test_check_car_info_body_style_and_color(self):
         captureoutput = io.StringIO()
@@ -301,7 +301,7 @@ class CarPartsTests(unittest.TestCase):
         pd_sobotka.add_car(my_car, "BMW", "520d", "e60", "12345678901234567", "2006", "187000", "silvergrau", "silver", "sedan", [21,6,2023], "60000", "CZK")
         pd_sobotka.check_car_info(body_style= "sedan", color = "silver")
         sys.stdout = sys.__stdout__
-        self.assertEqual(captureoutput.getvalue(), "{'basic information': ['BMW', '520d', 'e60', '12345678901234567', '2006', '187000', 'silvergrau', 'silver', 'sedan', [21, 6, 2023], '60000', 'CZK']}\n")
+        self.assertEqual(captureoutput.getvalue(), f"Sold car parts:\n{my_car} ,  basic information ,  ['BMW', '520d', 'e60', '12345678901234567', '2006', '187000', 'silvergrau', 'silver', 'sedan', [21, 6, 2023], '60000', 'CZK']\n")
     
     def test_check_price_of_a_car(self):
         captureoutput = io.StringIO()
